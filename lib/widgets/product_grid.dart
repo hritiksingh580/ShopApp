@@ -5,10 +5,14 @@ import '../widgets/product_item.dart';
 import '../providers/products.dart';
 
 class ProductGrid extends StatelessWidget {
+  
+  final showFav;
+  ProductGrid(this.showFav);
+
   @override
   Widget build(BuildContext context) {
     final productData = Provider.of<Products>(context);
-    final products = productData.items;
+    final products = showFav? productData.favoriteList : productData.items;
     return GridView.builder(
       padding: const EdgeInsets.all(10.0),
       itemBuilder: (ctx, index) => ChangeNotifierProvider.value(
