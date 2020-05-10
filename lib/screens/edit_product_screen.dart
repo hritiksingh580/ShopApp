@@ -36,6 +36,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
+      if ((_imageUrlController.text.isEmpty) ||
+          (!_imageUrlController.text.startsWith('http') &&
+              !_imageUrlController.text.startsWith('https')) ||
+          (!_imageUrlController.text.endsWith('.png') &&
+              !_imageUrlController.text.endsWith('.jpg') &&
+              !_imageUrlController.text.endsWith('.jpeg'))) {
+        return;
+      }
       setState(() {
         //..
       });
@@ -44,7 +52,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _saveForm() {
     final _isValidate = _form.currentState.validate();
-    if(!_isValidate) {
+    if (!_isValidate) {
       return;
     }
     _form.currentState.save();
@@ -78,10 +86,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     FocusScope.of(context).requestFocus(_priceFocusNode);
                   },
                   onSaved: (value) {
-                    _editedProduct = Product(id: null, title: value, description: _editedProduct.description, price: _editedProduct.price, imageUrl: _editedProduct.imageUrl);
+                    _editedProduct = Product(
+                        id: null,
+                        title: value,
+                        description: _editedProduct.description,
+                        price: _editedProduct.price,
+                        imageUrl: _editedProduct.imageUrl);
                   },
                   validator: (value) {
-                    if(value.isEmpty) { 
+                    if (value.isEmpty) {
                       return 'Please enter a vaild test';
                     }
                   },
@@ -97,7 +110,24 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     FocusScope.of(context).requestFocus(_descriptionFocusNode);
                   },
                   onSaved: (value) {
-                    _editedProduct = Product(id: null, title: _editedProduct.title, description: _editedProduct.description, price: double.parse(value), imageUrl: _editedProduct.imageUrl);
+                    _editedProduct = Product(
+                        id: null,
+                        title: _editedProduct.title,
+                        description: _editedProduct.description,
+                        price: double.parse(value),
+                        imageUrl: _editedProduct.imageUrl);
+                  },
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Enter a price';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Enter a vaild price';
+                    }
+                    if (double.parse(value) <= 0) {
+                      return 'Price should be Greater then 0';
+                    }
+                    return null;
                   },
                 ),
                 TextFormField(
@@ -108,7 +138,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   keyboardType: TextInputType.multiline,
                   focusNode: _descriptionFocusNode,
                   onSaved: (value) {
-                    _editedProduct = Product(id: null, title: _editedProduct.title, description: value, price: _editedProduct.price, imageUrl: _editedProduct.imageUrl);
+                    _editedProduct = Product(
+                        id: null,
+                        title: _editedProduct.title,
+                        description: value,
+                        price: _editedProduct.price,
+                        imageUrl: _editedProduct.imageUrl);
+                  },
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Enter a Description';
+                    }
+                    if (value.length <= 5) {
+                      return 'Description should be grater then 10';
+                    }
+                    return null;
                   },
                 ),
                 Row(
@@ -140,12 +184,32 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         textInputAction: TextInputAction.done,
                         controller: _imageUrlController,
                         focusNode: _imageUrlFocusNode,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Enter a imageUrl';
+                          }
+                          if (!value.startsWith('http') &&
+                              !value.startsWith('https')) {
+                            return 'Enter A valid Image URL';
+                          }
+                          if (!value.endsWith('.png') &&
+                              !value.endsWith('.jpg') &&
+                              !value.endsWith('.jpeg')) {
+                            return 'Enter a valid URL';
+                          }
+                          return null;
+                        },
                         onFieldSubmitted: (_) {
                           _saveForm();
                         },
                         onSaved: (value) {
-                    _editedProduct = Product(id: null, title: _editedProduct.title, description: _editedProduct.description, price: _editedProduct.price, imageUrl: value);
-                  },
+                          _editedProduct = Product(
+                              id: null,
+                              title: _editedProduct.title,
+                              description: _editedProduct.description,
+                              price: _editedProduct.price,
+                              imageUrl: value);
+                        },
                       ),
                     ),
                   ],
