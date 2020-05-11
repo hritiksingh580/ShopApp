@@ -30,9 +30,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImageUrl);
-    setState(() {
-      _isLoading = false;
-    });
     super.initState();
   }
 
@@ -83,29 +80,44 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   void _saveForm() {
-    setState(() {
-      _isLoading = true;
-    });
     final _isValidate = _form.currentState.validate();
     if (!_isValidate) {
       return;
     }
     _form.currentState.save();
+    setState(() {
+      _isLoading = true;
+    });
     if (_editedProduct.id != null) {
       Provider.of<Products>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
       setState(() {
-        _isLoading = true;
+        _isLoading = false;
       });
       Navigator.of(context).pop();
     } else {
       Provider.of<Products>(context, listen: false)
           .addProduct(_editedProduct)
-          .then((_) => {
+          .catchError((error) {
+        return showDialog<Null>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+                  title: Text('An Error Occured!'),
+                  content: Text('Somthinggwent wrong'),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text('Okay'),
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                    )
+                  ],
+                ));
+      }).then((_) {
                 setState(() {
-                  _isLoading = true;
-                }),
-                Navigator.of(context).pop()
+                  _isLoading = false;
+                });
+                Navigator.of(context).pop();
               });
     }
     // Navigator.of(context).pop();
