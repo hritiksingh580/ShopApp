@@ -134,9 +134,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.save),
-              onPressed: () {
-                _saveForm();
-              })
+              onPressed: _saveForm,
+          ),
         ],
       ),
       body: _isLoading
@@ -144,7 +143,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
               child: CircularProgressIndicator(),
             )
           : Padding(
-              padding: EdgeInsets.all(18),
+              padding: EdgeInsets.all(16.0),
               child: Form(
                 key: _form,
                 child: ListView(

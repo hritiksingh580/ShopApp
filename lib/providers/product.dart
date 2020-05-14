@@ -25,11 +25,11 @@ class Product with ChangeNotifier{
     notifyListeners();
   }
 
-  Future<void> togglerFavorites() async {
+  Future<void> togglerFavorites(String token) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
-    final url = 'https://new-demo-app-8488d.firebaseio.com/products/$id.json';
+    final url = 'https://new-demo-app-8488d.firebaseio.com/products/$id.json?auth=$token';
     try {
       final response = await http.patch(url, body: json.encode({
       'isFavorite' : isFavorite,
