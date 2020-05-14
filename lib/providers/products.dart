@@ -73,15 +73,18 @@ class Products with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Future<void> fetchAndGetData() async {
-    var url = 'https://new-demo-app-8488d.firebaseio.com/products.json?auth=$authToken';
+  Future<void> fetchAndGetData([ bool filterByUser = false ]) async {
+    final filterString = filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '' ;
+    var url =
+        'https://new-demo-app-8488d.firebaseio.com/products.json?auth=$authToken&$filterString';
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       if (extractedData == null) {
         return;
       }
-      url = 'https://new-demo-app-8488d.firebaseio.com/userFavorites/$userId.json/?auth=$authToken';
+      url =
+          'https://new-demo-app-8488d.firebaseio.com/userFavorites/$userId.json/?auth=$authToken';
       final favoritesResponse = await http.get(url);
       final favoritesData = json.decode(favoritesResponse.body);
       final List<Product> loadedProducts = [];
@@ -91,7 +94,8 @@ class Products with ChangeNotifier {
           title: prodData['title'],
           description: prodData['description'],
           price: prodData['price'],
-          isFavorite: favoritesData == null ? false : favoritesData[prodId] ?? false,
+          isFavorite:
+              favoritesData == null ? false : favoritesData[prodId] ?? false,
           imageUrl: prodData['imageUrl'],
         ));
       });
@@ -103,16 +107,20 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    final url = 'https://new-demo-app-8488d.firebaseio.com/products.json?auth=$authToken';
+    final url =
+        'https://new-demo-app-8488d.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.post(
         url,
-        body: json.encode({
-          'title': product.title,
-          'description': product.description,
-          'price': product.price,
-          'imageUrl': product.imageUrl,
-        }),
+        body: json.encode(
+          {
+            'title': product.title,
+            'description': product.description,
+            'price': product.price,
+            'imageUrl': product.imageUrl,
+            'creatorId': userId,
+          },
+        ),
       );
       final newProduct = Product(
           id: json.decode(response.body)['name'],
@@ -146,7 +154,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> deleteProduct(String id) async {
-    final url = 'https://new-demo-app-8488d.firebaseio.com/products/$id.json?auth=$authToken';
+    final url =
+        'https://new-demo-app-8488d.firebaseio.com/products/$id.json?auth=$authToken';
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     var existingProduct = _items[existingProductIndex];
     _items.removeWhere((prod) => prod.id == id);
