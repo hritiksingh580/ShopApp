@@ -84,7 +84,7 @@ class Products with ChangeNotifier {
         return;
       }
       url =
-          'https://new-demo-app-8488d.firebaseio.com/userFavorites/$userId.json/?auth=$authToken';
+          'https://new-demo-app-8488d.firebaseio.com/userFavorites.json/?auth=$authToken';
       final favoritesResponse = await http.get(url);
       final favoritesData = json.decode(favoritesResponse.body);
       final List<Product> loadedProducts = [];
