@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
-class Product with ChangeNotifier{
+class Product with ChangeNotifier {
   final String id;
   final String title;
   final String description;
@@ -25,19 +25,24 @@ class Product with ChangeNotifier{
     notifyListeners();
   }
 
-  Future<void> togglerFavorites(String token) async {
+  Future<void> togglerFavorites(String token, String userId) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
-    final url = 'https://new-demo-app-8488d.firebaseio.com/products/$id.json?auth=$token';
+    final url =
+        'https://new-demo-app-8488d.firebaseio.com/userFavorites/$userId/$id.json?auth=$token';
     try {
-      final response = await http.patch(url, body: json.encode({
-      'isFavorite' : isFavorite,
-    }));
-    if(response.statusCode >= 400){
-      _isFav(oldStatus);
-    }
+      final response = await http.put(
+        url,
+        body: json.encode(
+          isFavorite,
+        ),
+      );
+      if (response.statusCode >= 400) {
+        _isFav(oldStatus);
+      }
     } catch (error) {
+      print(error);
       _isFav(oldStatus);
     }
   }
