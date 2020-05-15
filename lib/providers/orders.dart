@@ -19,6 +19,11 @@ class OrderItem {
 }
 
 class Orders with ChangeNotifier {
+  final String authToken;
+  final String userId;
+
+  Orders(this.authToken, this.userId, this._orders);
+
   List<OrderItem> _orders = [];
 
   List<OrderItem> get orders {
@@ -26,38 +31,34 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchAndGetOrders() async {
-    try {
-    const url = 'https://new-demo-app-8488d.firebaseio.com/orders.json';
-      final response = await http.get(url);
-      final List<OrderItem> loadedOrder = [];
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      if(extractedData.length == null) {
-        return;
-      }
-      extractedData.forEach((orderId, orderData) {
-        loadedOrder.add(OrderItem(
-            id: orderId,
-            amount: orderData['amount'],
-            dateTime: DateTime.parse(orderData['dateTime']),
-            products: (orderData['product'] as List<dynamic>)
-                .map((orderItem) => CartItem(
-                    id: orderItem['id'],
-                    title: orderItem['title'],
-                    price: orderItem['price'],
-                    quantity: orderItem['quantity'])
-                    )
-                .toList())
-                );
-      });
-      _orders = loadedOrder;
-      notifyListeners();
-    } catch (error) {
-      print(error);
+    final url =
+        'https://new-demo-app-8488d.firebaseio.com/orders/$userId.json?auth=$authToken';
+    final response = await http.get(url);
+    final List<OrderItem> loadedOrder = [];
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+    if (extractedData.length == null) {
+      return;
     }
+    extractedData.forEach((orderId, orderData) {
+      loadedOrder.add(OrderItem(
+          id: orderId,
+          amount: orderData['amount'],
+          dateTime: DateTime.parse(orderData['dateTime']),
+          products: (orderData['product'] as List<dynamic>)
+              .map((orderItem) => CartItem(
+                  id: orderItem['id'],
+                  title: orderItem['title'],
+                  price: orderItem['price'],
+                  quantity: orderItem['quantity']))
+              .toList()));
+    });
+    _orders = loadedOrder.reversed.toList();
+    notifyListeners();
   }
 
   Future<void> addOrders(List<CartItem> cartProducts, double total) async {
-    const url = 'https://new-demo-app-8488d.firebaseio.com/orders.json';
+    final url =
+        'https://new-demo-app-8488d.firebaseio.com/orders/$userId.json?auth=$authToken';
     final timeStamp = DateTime.now();
     final response = await http.post(
       url,
