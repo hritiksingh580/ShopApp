@@ -8,6 +8,7 @@ import './screens/orders_screen.dart';
 import './screens/user_product_screen.dart';
 import './screens/edit_product_screen.dart';
 import './screens/auth_screen.dart';
+import './screens/splash_screen.dart';
 
 import './providers/cart.dart';
 import './providers/products.dart';
@@ -27,9 +28,10 @@ class MyApp extends StatelessWidget {
           ),
           ChangeNotifierProxyProvider<Auth, Products>(
             builder: (ctx, auth, previousProduct) => Products(
-                auth.token,
-                auth.userId,
-                previousProduct == null ? [] : previousProduct.items),
+              auth.token,
+              auth.userId,
+              previousProduct == null ? [] : previousProduct.items,
+            ),
           ),
           ChangeNotifierProvider(
             builder: (ctx) => Cart(),
@@ -48,7 +50,16 @@ class MyApp extends StatelessWidget {
                 primarySwatch: Colors.purple,
                 accentColor: Colors.deepOrange,
                 fontFamily: 'Lato'),
-            home: auth.isAuth ? ProductOverviewScreen() : AuthScreen(),
+            home: auth.isAuth
+                ? ProductOverviewScreen()
+                : FutureBuilder(
+                    future: auth.tryAutoLogin(),
+                    builder: (ctx, authResultSnapshot) =>
+                        authResultSnapshot.connectionState ==
+                                ConnectionState.waiting
+                            ? SplashScreen()
+                            : AuthScreen(),
+                  ),
             routes: {
               ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
               CartScreen.routeName: (ctx) => CartScreen(),
