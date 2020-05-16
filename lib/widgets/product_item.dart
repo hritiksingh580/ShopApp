@@ -26,8 +26,9 @@ class ProductItem extends StatelessWidget {
             onTap: () => Navigator.of(context).pushNamed(
                 ProductDetailScreen.routeName,
                 arguments: product.id),
-            child: Image.network(
-              product.imageUrl,
+            child: FadeInImage(
+              placeholder: AssetImage('assets/images/place_holder.png'),
+              image: NetworkImage(product.imageUrl),
               fit: BoxFit.cover,
             ),
           ),
@@ -39,7 +40,8 @@ class ProductItem extends StatelessWidget {
                           ? Icons.favorite
                           : Icons.favorite_border),
                       onPressed: () {
-                        product.togglerFavorites(authData.token, authData.userId);
+                        product.togglerFavorites(
+                            authData.token, authData.userId);
                       },
                       color: Theme.of(context).accentColor,
                     )),
